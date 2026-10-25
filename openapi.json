@@ -1,0 +1,2288 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Flock Energy \u2014 Urja Meter Ops API Service",
+    "description": "A clean, robust, well-documented programmatic REST API service and local index built over the legacy Urja Meter Ops utility portal. Features normalized meter schemas, reconstructed electrical network hierarchies, spatial proximity search, and time-series energy consumption analytics.",
+    "contact": {
+      "name": "Flock Energy Engineering Candidate",
+      "url": "https://flockenergy.com/"
+    },
+    "license": {
+      "name": "Proprietary / Flock Energy Assessment"
+    },
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/v1/meters": {
+      "get": {
+        "tags": [
+          "Meters"
+        ],
+        "summary": "List and search smart meters",
+        "description": "Search and filter smart meters across multiple attributes: manufacturer, phase type, installation status, DT code, feeder code, and free-text search.",
+        "operationId": "list_meters_api_v1_meters_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Free-text search across meterId, serial, make, DT, feeder, zone",
+              "title": "Q"
+            },
+            "description": "Free-text search across meterId, serial, make, DT, feeder, zone"
+          },
+          {
+            "name": "make",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by manufacturer (HPL, Genus, L&T, Secure, Allied)",
+              "title": "Make"
+            },
+            "description": "Filter by manufacturer (HPL, Genus, L&T, Secure, Allied)"
+          },
+          {
+            "name": "phase_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by phase (single, three)",
+              "title": "Phase Type"
+            },
+            "description": "Filter by phase (single, three)"
+          },
+          {
+            "name": "install_status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by status (Installed, Faulty, Decommissioned)",
+              "title": "Install Status"
+            },
+            "description": "Filter by status (Installed, Faulty, Decommissioned)"
+          },
+          {
+            "name": "install_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by install type (Whole Current, CT Operated)",
+              "title": "Install Type"
+            },
+            "description": "Filter by install type (Whole Current, CT Operated)"
+          },
+          {
+            "name": "build",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by build architecture (legacy, v2)",
+              "title": "Build"
+            },
+            "description": "Filter by build architecture (legacy, v2)"
+          },
+          {
+            "name": "dt_code",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by Distribution Transformer code (e.g. DT-001)",
+              "title": "Dt Code"
+            },
+            "description": "Filter by Distribution Transformer code (e.g. DT-001)"
+          },
+          {
+            "name": "feeder_code",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by Feeder code (e.g. F-001)",
+              "title": "Feeder Code"
+            },
+            "description": "Filter by Feeder code (e.g. F-001)"
+          },
+          {
+            "name": "substation_code",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by Substation code (e.g. SS-01)",
+              "title": "Substation Code"
+            },
+            "description": "Filter by Substation code (e.g. SS-01)"
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Field to sort by (meter_id, serial_no, make, install_status, phase_type, dt_code)",
+              "default": "meter_id",
+              "title": "Sort By"
+            },
+            "description": "Field to sort by (meter_id, serial_no, make, install_status, phase_type, dt_code)"
+          },
+          {
+            "name": "sort_order",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Sort order (asc, desc)",
+              "default": "asc",
+              "title": "Sort Order"
+            },
+            "description": "Sort order (asc, desc)"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Page number (1-indexed)",
+              "default": 1,
+              "title": "Page"
+            },
+            "description": "Page number (1-indexed)"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "Items per page",
+              "default": 20,
+              "title": "Page Size"
+            },
+            "description": "Items per page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponse_MeterSummary_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/meters/nearby": {
+      "get": {
+        "tags": [
+          "Meters"
+        ],
+        "summary": "Find smart meters near coordinates",
+        "description": "Calculate distance and return smart meters within radius_km using Great Circle (Haversine) calculation.",
+        "operationId": "find_nearby_meters_api_v1_meters_nearby_get",
+        "parameters": [
+          {
+            "name": "latitude",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "maximum": 90.0,
+              "minimum": -90.0,
+              "description": "Origin latitude coordinate",
+              "title": "Latitude"
+            },
+            "description": "Origin latitude coordinate"
+          },
+          {
+            "name": "longitude",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "maximum": 180.0,
+              "minimum": -180.0,
+              "description": "Origin longitude coordinate",
+              "title": "Longitude"
+            },
+            "description": "Origin longitude coordinate"
+          },
+          {
+            "name": "radius_km",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 50.0,
+              "exclusiveMinimum": 0.0,
+              "description": "Search radius in kilometers",
+              "default": 5.0,
+              "title": "Radius Km"
+            },
+            "description": "Search radius in kilometers"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "description": "Maximum number of meters to return",
+              "default": 50,
+              "title": "Limit"
+            },
+            "description": "Maximum number of meters to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NearbyMetersResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/meters/{meter_id}": {
+      "get": {
+        "tags": [
+          "Meters"
+        ],
+        "summary": "Get meter detail",
+        "description": "Retrieve comprehensive smart meter detail including normalized nameplate and full electrical network hierarchy.",
+        "operationId": "get_meter_api_v1_meters__meter_id__get",
+        "parameters": [
+          {
+            "name": "meter_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Meter Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeterDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/meters/{meter_id}/nameplate": {
+      "get": {
+        "tags": [
+          "Meters"
+        ],
+        "summary": "Get meter nameplate",
+        "description": "Retrieve normalized nameplate technical specifications, harmonized across legacy and v2 meter models.",
+        "operationId": "get_meter_nameplate_api_v1_meters__meter_id__nameplate_get",
+        "parameters": [
+          {
+            "name": "meter_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Meter Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NameplateItem"
+                  },
+                  "title": "Response Get Meter Nameplate Api V1 Meters  Meter Id  Nameplate Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/meters/{meter_id}/energy": {
+      "get": {
+        "tags": [
+          "Energy Consumption"
+        ],
+        "summary": "Get meter energy readings",
+        "description": "Retrieve time-series consumption readings (active kWh, apparent kVAh, and R-phase voltage) with optional date window filtering ('from_date' and 'to_date').",
+        "operationId": "get_meter_energy_api_v1_meters__meter_id__energy_get",
+        "parameters": [
+          {
+            "name": "meter_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Meter Id"
+            }
+          },
+          {
+            "name": "from_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Start date (YYYY-MM-DD or DD/MM/YYYY)",
+              "title": "From Date"
+            },
+            "description": "Start date (YYYY-MM-DD or DD/MM/YYYY)"
+          },
+          {
+            "name": "to_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "End date (YYYY-MM-DD or DD/MM/YYYY)",
+              "title": "To Date"
+            },
+            "description": "End date (YYYY-MM-DD or DD/MM/YYYY)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeterEnergyResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/meters/{meter_id}/energy/summary": {
+      "get": {
+        "tags": [
+          "Energy Consumption"
+        ],
+        "summary": "Get consumption analytics summary",
+        "description": "Retrieve aggregated consumption KPIs: net kWh delta, estimated power factor, and voltage quality stats.",
+        "operationId": "get_meter_energy_summary_api_v1_meters__meter_id__energy_summary_get",
+        "parameters": [
+          {
+            "name": "meter_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Meter Id"
+            }
+          },
+          {
+            "name": "from_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Start date (YYYY-MM-DD or DD/MM/YYYY)",
+              "title": "From Date"
+            },
+            "description": "Start date (YYYY-MM-DD or DD/MM/YYYY)"
+          },
+          {
+            "name": "to_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "End date (YYYY-MM-DD or DD/MM/YYYY)",
+              "title": "To Date"
+            },
+            "description": "End date (YYYY-MM-DD or DD/MM/YYYY)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnergySummary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/transformers": {
+      "get": {
+        "tags": [
+          "Transformers"
+        ],
+        "summary": "List all distribution transformers",
+        "description": "Retrieve all distribution transformers in the utility network with rated capacity, parent feeder, and connected meter counts.",
+        "operationId": "list_transformers_api_v1_transformers_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DistributionTransformer"
+                  },
+                  "type": "array",
+                  "title": "Response List Transformers Api V1 Transformers Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/transformers/{code}": {
+      "get": {
+        "tags": [
+          "Transformers"
+        ],
+        "summary": "Get transformer detail",
+        "description": "Retrieve distribution transformer detail along with the list of smart meters connected to it.",
+        "operationId": "get_transformer_api_v1_transformers__code__get",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Code"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DistributionTransformerDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/hierarchy/tree": {
+      "get": {
+        "tags": [
+          "Network Hierarchy"
+        ],
+        "summary": "Get reconstructed network hierarchy tree",
+        "description": "Retrieve the complete reconstructed electrical distribution hierarchy (Zone \u203a Circle \u203a Division \u203a Subdivision \u203a Substation \u203a Feeder \u203a DT) with subordinate meter counts.",
+        "operationId": "get_hierarchy_tree_api_v1_hierarchy_tree_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HierarchyTreeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/hierarchy/anomalies": {
+      "get": {
+        "tags": [
+          "Network Hierarchy"
+        ],
+        "summary": "Get data quality & anomaly diagnostic report",
+        "description": "Audit report detailing legacy data inconsistencies discovered in the Urja portal (aliased names like DT-007, blank codes, multi-parent feeder mappings) and the reconciliation strategy applied.",
+        "operationId": "get_hierarchy_anomalies_api_v1_hierarchy_anomalies_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HierarchyAnomalyReport"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Health check and upstream connectivity status",
+        "description": "Inspect API operational status, upstream Urja portal session validity, and local cache index freshness.",
+        "operationId": "health_check_api_v1_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthCheckResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stats": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Get utility fleet statistics and KPIs",
+        "description": "High-level dashboard KPIs: active vs faulty meters, manufacturer distribution, total transformer kVA, and feeder totals.",
+        "operationId": "get_fleet_stats_api_v1_stats_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FleetStats"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sync": {
+      "post": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Force upstream cache refresh",
+        "description": "Trigger an immediate crawl and bulk export from the Urja portal to refresh the local in-memory index.",
+        "operationId": "trigger_sync_api_v1_sync_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Trigger Sync Api V1 Sync Post"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Health Check",
+        "operationId": "health_check_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "DistributionTransformer": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code",
+            "description": "Unique DT code",
+            "examples": [
+              "DT-001"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Transformer station name",
+            "examples": [
+              "Malviya Nagar DT 1"
+            ]
+          },
+          "feeder_code": {
+            "type": "string",
+            "title": "Feeder Code",
+            "description": "Parent 11kV Feeder code",
+            "examples": [
+              "F-001"
+            ]
+          },
+          "capacity_kva": {
+            "type": "number",
+            "title": "Capacity Kva",
+            "description": "Rated transformer capacity in kVA",
+            "examples": [
+              100.0
+            ]
+          },
+          "connected_meters_count": {
+            "type": "integer",
+            "title": "Connected Meters Count",
+            "description": "Total smart meters fed by this transformer",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "name",
+          "feeder_code",
+          "capacity_kva"
+        ],
+        "title": "DistributionTransformer",
+        "description": "Distribution transformer entity."
+      },
+      "DistributionTransformerDetail": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code",
+            "description": "Unique DT code",
+            "examples": [
+              "DT-001"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Transformer station name",
+            "examples": [
+              "Malviya Nagar DT 1"
+            ]
+          },
+          "feeder_code": {
+            "type": "string",
+            "title": "Feeder Code",
+            "description": "Parent 11kV Feeder code",
+            "examples": [
+              "F-001"
+            ]
+          },
+          "capacity_kva": {
+            "type": "number",
+            "title": "Capacity Kva",
+            "description": "Rated transformer capacity in kVA",
+            "examples": [
+              100.0
+            ]
+          },
+          "connected_meters_count": {
+            "type": "integer",
+            "title": "Connected Meters Count",
+            "description": "Total smart meters fed by this transformer",
+            "default": 0
+          },
+          "connected_meters": {
+            "items": {
+              "$ref": "#/components/schemas/MeterSummary"
+            },
+            "type": "array",
+            "title": "Connected Meters",
+            "description": "List of meters connected under this distribution transformer"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "name",
+          "feeder_code",
+          "capacity_kva"
+        ],
+        "title": "DistributionTransformerDetail",
+        "description": "Transformer with connected meter details."
+      },
+      "EnergyReading": {
+        "properties": {
+          "timestamp_raw": {
+            "type": "string",
+            "title": "Timestamp Raw",
+            "description": "Original raw timestamp from portal (DD/MM/YYYY HH:MM)",
+            "examples": [
+              "24/06/2026 00:00"
+            ]
+          },
+          "timestamp_iso": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timestamp Iso",
+            "description": "Standard ISO-8601 formatted timestamp",
+            "examples": [
+              "2026-06-24T00:00:00"
+            ]
+          },
+          "kwh": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kwh",
+            "description": "Cumulative active energy in kilowatt-hours (kWh)",
+            "examples": [
+              48439.16
+            ]
+          },
+          "kvah": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kvah",
+            "description": "Cumulative apparent energy in kilovolt-ampere-hours (kVAh)",
+            "examples": [
+              52314.29
+            ]
+          },
+          "voltage_r": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Voltage R",
+            "description": "R-phase voltage in Volts (V)",
+            "examples": [
+              229.0
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "timestamp_raw"
+        ],
+        "title": "EnergyReading",
+        "description": "Normalized single consumption interval record."
+      },
+      "EnergySummary": {
+        "properties": {
+          "meter_id": {
+            "type": "string",
+            "title": "Meter Id",
+            "description": "Meter ID"
+          },
+          "reading_count": {
+            "type": "integer",
+            "title": "Reading Count",
+            "description": "Total readings in window"
+          },
+          "sampling_resolution": {
+            "type": "string",
+            "title": "Sampling Resolution",
+            "description": "Detected sampling frequency (e.g. 30-minute interval, daily)"
+          },
+          "start_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Time",
+            "description": "Earliest reading timestamp"
+          },
+          "end_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Time",
+            "description": "Latest reading timestamp"
+          },
+          "start_kwh": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Kwh",
+            "description": "Initial kWh register reading"
+          },
+          "end_kwh": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Kwh",
+            "description": "Final kWh register reading"
+          },
+          "net_consumption_kwh": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Net Consumption Kwh",
+            "description": "Net active energy consumed (end_kwh - start_kwh)"
+          },
+          "net_consumption_kvah": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Net Consumption Kvah",
+            "description": "Net apparent energy consumed"
+          },
+          "estimated_power_factor": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Power Factor",
+            "description": "Estimated average power factor (kWh/kVAh)"
+          },
+          "voltage_diagnostics": {
+            "$ref": "#/components/schemas/VoltageStats"
+          }
+        },
+        "type": "object",
+        "required": [
+          "meter_id",
+          "reading_count",
+          "sampling_resolution"
+        ],
+        "title": "EnergySummary",
+        "description": "Statistical summary of consumption and power quality across the requested window."
+      },
+      "FleetStats": {
+        "properties": {
+          "total_meters": {
+            "type": "integer",
+            "title": "Total Meters",
+            "description": "Total smart meters in network",
+            "examples": [
+              403
+            ]
+          },
+          "installed_meters": {
+            "type": "integer",
+            "title": "Installed Meters",
+            "description": "Count of active Installed meters",
+            "examples": [
+              238
+            ]
+          },
+          "faulty_meters": {
+            "type": "integer",
+            "title": "Faulty Meters",
+            "description": "Count of meters flagged Faulty",
+            "examples": [
+              90
+            ]
+          },
+          "decommissioned_meters": {
+            "type": "integer",
+            "title": "Decommissioned Meters",
+            "description": "Count of Decommissioned meters",
+            "examples": [
+              75
+            ]
+          },
+          "total_transformers": {
+            "type": "integer",
+            "title": "Total Transformers",
+            "description": "Count of Distribution Transformers",
+            "examples": [
+              40
+            ]
+          },
+          "total_feeders": {
+            "type": "integer",
+            "title": "Total Feeders",
+            "description": "Count of primary Feeders",
+            "examples": [
+              35
+            ]
+          },
+          "total_substations": {
+            "type": "integer",
+            "title": "Total Substations",
+            "description": "Count of Substations",
+            "examples": [
+              21
+            ]
+          },
+          "total_capacity_kva": {
+            "type": "number",
+            "title": "Total Capacity Kva",
+            "description": "Aggregated transformer capacity in kVA",
+            "examples": [
+              3450.0
+            ]
+          },
+          "make_distribution": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Make Distribution",
+            "description": "Count of meters by manufacturer"
+          },
+          "phase_distribution": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Phase Distribution",
+            "description": "Count by phase configuration"
+          },
+          "build_distribution": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Build Distribution",
+            "description": "Count by build type (legacy vs v2)"
+          },
+          "install_type_distribution": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Install Type Distribution",
+            "description": "Count by install type"
+          },
+          "cache_freshness_seconds": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cache Freshness Seconds",
+            "description": "Age of current local index in seconds"
+          },
+          "last_synced_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Synced At",
+            "description": "ISO timestamp of last full sync from portal"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total_meters",
+          "installed_meters",
+          "faulty_meters",
+          "decommissioned_meters",
+          "total_transformers",
+          "total_feeders",
+          "total_substations",
+          "total_capacity_kva"
+        ],
+        "title": "FleetStats",
+        "description": "High-level utility fleet metrics and KPIs."
+      },
+      "GeoCoordinates": {
+        "properties": {
+          "latitude": {
+            "type": "number",
+            "title": "Latitude",
+            "description": "Latitude coordinate",
+            "examples": [
+              26.938961
+            ]
+          },
+          "longitude": {
+            "type": "number",
+            "title": "Longitude",
+            "description": "Longitude coordinate",
+            "examples": [
+              75.830957
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "latitude",
+          "longitude"
+        ],
+        "title": "GeoCoordinates",
+        "description": "Geographic coordinates for a smart meter."
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HealthCheckResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "service": {
+            "type": "string",
+            "title": "Service"
+          },
+          "upstream_portal": {
+            "type": "string",
+            "title": "Upstream Portal"
+          },
+          "upstream_session_active": {
+            "type": "boolean",
+            "title": "Upstream Session Active"
+          },
+          "cache_indexed": {
+            "type": "boolean",
+            "title": "Cache Indexed"
+          },
+          "cache_age_seconds": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cache Age Seconds"
+          },
+          "indexed_meters_count": {
+            "type": "integer",
+            "title": "Indexed Meters Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "service",
+          "upstream_portal",
+          "upstream_session_active",
+          "cache_indexed",
+          "indexed_meters_count"
+        ],
+        "title": "HealthCheckResponse"
+      },
+      "HierarchyAnomaly": {
+        "properties": {
+          "anomaly_type": {
+            "type": "string",
+            "title": "Anomaly Type",
+            "description": "Type of quirk (e.g., naming_alias, empty_code, empty_name, multi_parent_feeder)",
+            "examples": [
+              "naming_alias"
+            ]
+          },
+          "tier": {
+            "type": "string",
+            "title": "Tier",
+            "description": "Hierarchy tier where quirk occurred",
+            "examples": [
+              "dt"
+            ]
+          },
+          "entity_code": {
+            "type": "string",
+            "title": "Entity Code",
+            "description": "Affected entity identifier",
+            "examples": [
+              "DT-007"
+            ]
+          },
+          "details": {
+            "type": "string",
+            "title": "Details",
+            "description": "Human explanation of the data inconsistency"
+          },
+          "variants": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Variants",
+            "description": "Observed conflicting variations in the dataset"
+          },
+          "meter_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Meter Ids",
+            "description": "Sample meter IDs exhibiting this anomaly"
+          }
+        },
+        "type": "object",
+        "required": [
+          "anomaly_type",
+          "tier",
+          "entity_code",
+          "details"
+        ],
+        "title": "HierarchyAnomaly",
+        "description": "A detected anomaly or quirk in the legacy portal hierarchy data."
+      },
+      "HierarchyAnomalyReport": {
+        "properties": {
+          "total_anomalies": {
+            "type": "integer",
+            "title": "Total Anomalies",
+            "description": "Count of distinct data quirks discovered"
+          },
+          "anomalies": {
+            "items": {
+              "$ref": "#/components/schemas/HierarchyAnomaly"
+            },
+            "type": "array",
+            "title": "Anomalies",
+            "description": "List of detected anomalies"
+          },
+          "reconciliation_strategy": {
+            "type": "string",
+            "title": "Reconciliation Strategy",
+            "description": "Explanation of how the API reconciled and resolved these anomalies"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total_anomalies",
+          "anomalies",
+          "reconciliation_strategy"
+        ],
+        "title": "HierarchyAnomalyReport",
+        "description": "Comprehensive data quality report for the electrical network hierarchy."
+      },
+      "HierarchyNode": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Unique node identifier (tier:code)",
+            "examples": [
+              "zone:Z-01"
+            ]
+          },
+          "tier": {
+            "type": "string",
+            "title": "Tier",
+            "description": "Hierarchy tier (zone, circle, division, subdivision, substation, feeder, dt)",
+            "examples": [
+              "zone"
+            ]
+          },
+          "code": {
+            "type": "string",
+            "title": "Code",
+            "description": "Canonical tier code",
+            "examples": [
+              "Z-01"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Canonical tier name",
+            "examples": [
+              "Jaipur Zone 1"
+            ]
+          },
+          "meter_count": {
+            "type": "integer",
+            "title": "Meter Count",
+            "description": "Total meters subordinate to this node",
+            "default": 0
+          },
+          "children": {
+            "items": {
+              "$ref": "#/components/schemas/HierarchyNode"
+            },
+            "type": "array",
+            "title": "Children",
+            "description": "Subordinate child nodes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "tier",
+          "code",
+          "name"
+        ],
+        "title": "HierarchyNode",
+        "description": "A node in the reconstructed electrical network hierarchy tree."
+      },
+      "HierarchyTier": {
+        "properties": {
+          "code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code",
+            "description": "Tier code (e.g., Z-01, DT-001)"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name",
+            "description": "Tier human-readable name"
+          }
+        },
+        "type": "object",
+        "title": "HierarchyTier",
+        "description": "A single tier element in the network hierarchy."
+      },
+      "HierarchyTreeResponse": {
+        "properties": {
+          "total_meters_indexed": {
+            "type": "integer",
+            "title": "Total Meters Indexed"
+          },
+          "total_zones": {
+            "type": "integer",
+            "title": "Total Zones"
+          },
+          "total_circles": {
+            "type": "integer",
+            "title": "Total Circles"
+          },
+          "total_feeders": {
+            "type": "integer",
+            "title": "Total Feeders"
+          },
+          "total_dts": {
+            "type": "integer",
+            "title": "Total Dts"
+          },
+          "anomalies_count": {
+            "type": "integer",
+            "title": "Anomalies Count"
+          },
+          "tree": {
+            "items": {
+              "$ref": "#/components/schemas/HierarchyNode"
+            },
+            "type": "array",
+            "title": "Tree"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total_meters_indexed",
+          "total_zones",
+          "total_circles",
+          "total_feeders",
+          "total_dts",
+          "anomalies_count",
+          "tree"
+        ],
+        "title": "HierarchyTreeResponse",
+        "description": "Network hierarchy tree root container."
+      },
+      "MeterDetail": {
+        "properties": {
+          "meter_id": {
+            "type": "string",
+            "title": "Meter Id",
+            "description": "Unique Meter identifier",
+            "examples": [
+              "J100000"
+            ]
+          },
+          "serial_no": {
+            "type": "string",
+            "title": "Serial No",
+            "description": "Manufacturer serial number",
+            "examples": [
+              "SE33962"
+            ]
+          },
+          "make": {
+            "type": "string",
+            "title": "Make",
+            "description": "Meter manufacturer (e.g. HPL, Genus, L&T)",
+            "examples": [
+              "HPL"
+            ]
+          },
+          "phase_type": {
+            "type": "string",
+            "title": "Phase Type",
+            "description": "Phase configuration (single / three)",
+            "examples": [
+              "single"
+            ]
+          },
+          "install_status": {
+            "type": "string",
+            "title": "Install Status",
+            "description": "Installation status (Installed / Faulty / Decommissioned)",
+            "examples": [
+              "Installed"
+            ]
+          },
+          "install_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Install Type",
+            "description": "Installation type (Whole Current / CT Operated)",
+            "examples": [
+              "Whole Current"
+            ]
+          },
+          "build": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Build",
+            "description": "Meter build architecture (legacy / v2)",
+            "examples": [
+              "legacy"
+            ]
+          },
+          "dt_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dt Code",
+            "description": "Connected Distribution Transformer code",
+            "examples": [
+              "DT-001"
+            ]
+          },
+          "geo": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/GeoCoordinates"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Geographic coordinates if available"
+          },
+          "hierarchy": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MeterHierarchy"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Full electrical network hierarchy"
+          },
+          "hierarchy_breadcrumb": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Hierarchy Breadcrumb",
+            "description": "Formatted linear path (Zone \u203a Circle \u203a Division \u203a Subdivision \u203a Substation \u203a Feeder \u203a DT)"
+          },
+          "nameplate": {
+            "items": {
+              "$ref": "#/components/schemas/NameplateItem"
+            },
+            "type": "array",
+            "title": "Nameplate",
+            "description": "Clean, normalized list of nameplate parameters"
+          },
+          "nameplate_dict": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Nameplate Dict",
+            "description": "Key-value dictionary of normalized nameplate parameters for easy lookup"
+          },
+          "has_energy_profile": {
+            "type": "boolean",
+            "title": "Has Energy Profile",
+            "description": "Indicates whether energy time-series readings are available",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "meter_id",
+          "serial_no",
+          "make",
+          "phase_type",
+          "install_status"
+        ],
+        "title": "MeterDetail",
+        "description": "Full meter information including nameplate parameters and network hierarchy."
+      },
+      "MeterEnergyResponse": {
+        "properties": {
+          "meter_id": {
+            "type": "string",
+            "title": "Meter Id",
+            "description": "Meter ID"
+          },
+          "total_readings": {
+            "type": "integer",
+            "title": "Total Readings",
+            "description": "Total readings returned"
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EnergySummary"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Aggregated analytics summary"
+          },
+          "readings": {
+            "items": {
+              "$ref": "#/components/schemas/EnergyReading"
+            },
+            "type": "array",
+            "title": "Readings",
+            "description": "Chronological energy readings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "meter_id",
+          "total_readings"
+        ],
+        "title": "MeterEnergyResponse",
+        "description": "Full response wrapper for meter energy readings."
+      },
+      "MeterHierarchy": {
+        "properties": {
+          "zone": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HierarchyTier"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "circle": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HierarchyTier"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "division": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HierarchyTier"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "subdivision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HierarchyTier"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "substation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HierarchyTier"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "feeder": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HierarchyTier"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "dt": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HierarchyTier"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "MeterHierarchy",
+        "description": "Complete network hierarchy placement for a meter."
+      },
+      "MeterSummary": {
+        "properties": {
+          "meter_id": {
+            "type": "string",
+            "title": "Meter Id",
+            "description": "Unique Meter identifier",
+            "examples": [
+              "J100000"
+            ]
+          },
+          "serial_no": {
+            "type": "string",
+            "title": "Serial No",
+            "description": "Manufacturer serial number",
+            "examples": [
+              "SE33962"
+            ]
+          },
+          "make": {
+            "type": "string",
+            "title": "Make",
+            "description": "Meter manufacturer (e.g. HPL, Genus, L&T)",
+            "examples": [
+              "HPL"
+            ]
+          },
+          "phase_type": {
+            "type": "string",
+            "title": "Phase Type",
+            "description": "Phase configuration (single / three)",
+            "examples": [
+              "single"
+            ]
+          },
+          "install_status": {
+            "type": "string",
+            "title": "Install Status",
+            "description": "Installation status (Installed / Faulty / Decommissioned)",
+            "examples": [
+              "Installed"
+            ]
+          },
+          "install_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Install Type",
+            "description": "Installation type (Whole Current / CT Operated)",
+            "examples": [
+              "Whole Current"
+            ]
+          },
+          "build": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Build",
+            "description": "Meter build architecture (legacy / v2)",
+            "examples": [
+              "legacy"
+            ]
+          },
+          "dt_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dt Code",
+            "description": "Connected Distribution Transformer code",
+            "examples": [
+              "DT-001"
+            ]
+          },
+          "geo": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/GeoCoordinates"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Geographic coordinates if available"
+          }
+        },
+        "type": "object",
+        "required": [
+          "meter_id",
+          "serial_no",
+          "make",
+          "phase_type",
+          "install_status"
+        ],
+        "title": "MeterSummary",
+        "description": "Concise meter summary used in list/search results."
+      },
+      "NameplateItem": {
+        "properties": {
+          "parameter_name": {
+            "type": "string",
+            "title": "Parameter Name",
+            "description": "Parameter key/name",
+            "examples": [
+              "Make"
+            ]
+          },
+          "parameter_value": {
+            "type": "string",
+            "title": "Parameter Value",
+            "description": "Parameter value",
+            "examples": [
+              "HPL"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "parameter_name",
+          "parameter_value"
+        ],
+        "title": "NameplateItem",
+        "description": "A single normalized nameplate attribute."
+      },
+      "NearbyMeterResult": {
+        "properties": {
+          "meter_id": {
+            "type": "string",
+            "title": "Meter Id",
+            "description": "Unique Meter identifier",
+            "examples": [
+              "J100000"
+            ]
+          },
+          "serial_no": {
+            "type": "string",
+            "title": "Serial No",
+            "description": "Manufacturer serial number",
+            "examples": [
+              "SE33962"
+            ]
+          },
+          "make": {
+            "type": "string",
+            "title": "Make",
+            "description": "Meter manufacturer (e.g. HPL, Genus, L&T)",
+            "examples": [
+              "HPL"
+            ]
+          },
+          "phase_type": {
+            "type": "string",
+            "title": "Phase Type",
+            "description": "Phase configuration (single / three)",
+            "examples": [
+              "single"
+            ]
+          },
+          "install_status": {
+            "type": "string",
+            "title": "Install Status",
+            "description": "Installation status (Installed / Faulty / Decommissioned)",
+            "examples": [
+              "Installed"
+            ]
+          },
+          "install_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Install Type",
+            "description": "Installation type (Whole Current / CT Operated)",
+            "examples": [
+              "Whole Current"
+            ]
+          },
+          "build": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Build",
+            "description": "Meter build architecture (legacy / v2)",
+            "examples": [
+              "legacy"
+            ]
+          },
+          "dt_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dt Code",
+            "description": "Connected Distribution Transformer code",
+            "examples": [
+              "DT-001"
+            ]
+          },
+          "geo": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/GeoCoordinates"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Geographic coordinates if available"
+          },
+          "distance_km": {
+            "type": "number",
+            "title": "Distance Km",
+            "description": "Great-circle distance in kilometers",
+            "examples": [
+              1.42
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "meter_id",
+          "serial_no",
+          "make",
+          "phase_type",
+          "install_status",
+          "distance_km"
+        ],
+        "title": "NearbyMeterResult",
+        "description": "Meter with calculated distance from target coordinate."
+      },
+      "NearbyMetersResponse": {
+        "properties": {
+          "origin_latitude": {
+            "type": "number",
+            "title": "Origin Latitude",
+            "description": "Query latitude"
+          },
+          "origin_longitude": {
+            "type": "number",
+            "title": "Origin Longitude",
+            "description": "Query longitude"
+          },
+          "radius_km": {
+            "type": "number",
+            "title": "Radius Km",
+            "description": "Search radius in kilometers"
+          },
+          "total_found": {
+            "type": "integer",
+            "title": "Total Found",
+            "description": "Count of meters within radius"
+          },
+          "meters": {
+            "items": {
+              "$ref": "#/components/schemas/NearbyMeterResult"
+            },
+            "type": "array",
+            "title": "Meters",
+            "description": "Meters sorted by distance ascending"
+          }
+        },
+        "type": "object",
+        "required": [
+          "origin_latitude",
+          "origin_longitude",
+          "radius_km",
+          "total_found"
+        ],
+        "title": "NearbyMetersResponse",
+        "description": "Response containing proximity query results."
+      },
+      "PaginatedResponse_MeterSummary_": {
+        "properties": {
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "description": "Total matching items across all pages",
+            "examples": [
+              403
+            ]
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page",
+            "description": "Current page number (1-indexed)",
+            "examples": [
+              1
+            ]
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size",
+            "description": "Items per page",
+            "examples": [
+              20
+            ]
+          },
+          "total_pages": {
+            "type": "integer",
+            "title": "Total Pages",
+            "description": "Total pages available",
+            "examples": [
+              21
+            ]
+          },
+          "has_next": {
+            "type": "boolean",
+            "title": "Has Next",
+            "description": "Whether a next page exists"
+          },
+          "has_prev": {
+            "type": "boolean",
+            "title": "Has Prev",
+            "description": "Whether a previous page exists"
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/MeterSummary"
+            },
+            "type": "array",
+            "title": "Data",
+            "description": "Array of items on the current page"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total",
+          "page",
+          "page_size",
+          "total_pages",
+          "has_next",
+          "has_prev",
+          "data"
+        ],
+        "title": "PaginatedResponse[MeterSummary]"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "VoltageStats": {
+        "properties": {
+          "min_volts": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Volts",
+            "description": "Minimum recorded voltage (V)"
+          },
+          "max_volts": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Volts",
+            "description": "Maximum recorded voltage (V)"
+          },
+          "avg_volts": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avg Volts",
+            "description": "Mean recorded voltage (V)"
+          },
+          "undervoltage_count": {
+            "type": "integer",
+            "title": "Undervoltage Count",
+            "description": "Readings with voltage < 210V",
+            "default": 0
+          },
+          "overvoltage_count": {
+            "type": "integer",
+            "title": "Overvoltage Count",
+            "description": "Readings with voltage > 245V",
+            "default": 0
+          },
+          "nominal_count": {
+            "type": "integer",
+            "title": "Nominal Count",
+            "description": "Readings within standard nominal band [210V, 245V]",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "title": "VoltageStats",
+        "description": "Voltage quality diagnostics."
+      }
+    }
+  }
+}

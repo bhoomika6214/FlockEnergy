@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  api:
+    build: .
+    container_name: flock-urja-api
+    ports:
+      - "8000:8000"
+    environment:
+      - URJA_PORTAL_URL=https://urja-ops.flockenergy.tech
+      - URJA_USERNAME=operator@urja.local
+      - URJA_PASSWORD=urja-ops-2026
+      - CACHE_TTL_SECONDS=300
+      - AUTO_SYNC_ON_STARTUP=true
+    restart: unless-stopped
